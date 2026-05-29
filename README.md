@@ -1,8 +1,6 @@
 # AI Engineer — Model Quality & Performance Challenge
 
 Welcome, and thanks for taking the time. This challenge has two independent tasks.
-You may attempt both, but **depth beats breadth** — a single task done with real
-judgment is worth more than two done shallowly.
 
 Read each task's spec in full before starting. Each lists hard requirements and a
 set of **forbidden trivial baselines** that will not pass the rubric.
