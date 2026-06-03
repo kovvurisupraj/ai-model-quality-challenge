@@ -1,0 +1,12 @@
+{
+    "index": 0,
+    "sample_score": {
+        "score": {
+            "value": {
+                "pass": 1.0
+            },
+            "extracted_prediction": "import sys\nfrom collections import deque\n\ndef solve() -> None:\n    data = sys.stdin.read().strip().split()\n    if not data:\n        return\n    N = int(data[0])\n    S = data[1].strip()\n    T = data[2].strip()\n\n    # colour multiset must be equal\n    if S.count('B') != T.count('B') or S.count('W') != T.count('W'):\n        print(-1)\n        return\n\n    start = S + \"..\"\n    target = T + \"..\"\n\n    if start == target:\n        print(0)\n        return\n\n    q = deque()\n    q.append(start)\n    dist = {start: 0}\n\n    while q:\n        cur = q.popleft()\n        d = dist[cur]\n        empty = cur.find(\"..\")          # position of the empty block, 0\u2011based\n        # try every adjacent stone pair\n        for x in range(N + 1):          # positions 0 \u2026 N (since length = N+2)\n            if cur[x] != '.' and cur[x + 1] != '.':\n                # perform the swap\n                lst = list(cur)\n                lst[empty] = cur[x]\n                lst[empty + 1] = cur[x + 1]\n                lst[x] = '.'\n                lst[x + 1] = '.'\n                nxt = \"\".join(lst)\n                if nxt not in dist:\n                    if nxt == target:\n                        print(d + 1)\n                        return\n                    dist[nxt] = d + 1\n                    q.append(nxt)\n\n    # target never reached\n    print(-1)\n\n\nif __name__ == \"__main__\":\n    solve()",
+            "main_score_name": "pass"
+        }
+    }
+}
