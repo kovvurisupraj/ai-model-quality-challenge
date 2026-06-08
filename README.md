@@ -1,86 +1,60 @@
-# AI Engineer — Model Quality & Performance Challenge
+# AI Model Quality Challenge: Submission
 
-Welcome, and thanks for taking the time. This challenge has two independent tasks.
+## Task 1: Performance Dashboard
 
-Read each task's spec in full before starting. Each lists hard requirements and a
-set of **forbidden trivial baselines** that will not pass the rubric.
+**Live URL:** https://cerebras-dashboard.vercel.app/
 
----
+**Video Walkthrough:** https://drive.google.com/file/d/1TcaditcNezHmJQeNWVG0CvjoQl8CbFeF/view?usp=sharing
 
-## What's in this repo
+**Code:** https://github.com/kovvurisupraj/Cerebras_Dashboard
 
-| Path | What it is |
-|---|---|
-| `Task1_Performance.md` | Task 1 spec — performance UI for customer + internal audiences |
-| `Task2_Model_Quality.md` | Task 2 spec — benchmark/eval pruning inside `evalscope` |
-| `perf_data.zip` | Task 1 data — perf projections, Models A–K × 7 traffic profiles (`.xlsx`) |
-| `Evals/` | Task 2 data — model outputs (`predictions/`) + per-sample scores (`reviews/`) for LiveCodeBench, AA-LCR, MMMU |
+## Task 2: Benchmark Compression
 
-> **Git LFS:** the files under `Evals/` are stored via [Git LFS](https://git-lfs.github.com/).
-> Install it (`git lfs install`) before cloning, or the `.jsonl` files will appear as
-> small pointer stubs instead of the real data.
+### Evalscope Fork
 
----
+**Code:** https://github.com/kovvurisupraj/evalscope
 
-## The two tasks
+**Evalscope commit SHA developed against:** `c14dbaf`
 
-### Task 1 — Performance UI for Customer and Product
-Turn an internal `.xlsx` perf projection sheet into something two audiences can act on:
-a customer/PM who needs a **go/no-go** signal, and an internal engineer who needs to
-**sanity-check** a projection. See [`Task1_Performance.md`](./Task1_Performance.md).
+### What Was Built
 
-Run contract: document your own install and launch steps in your README — a reviewer
-will clone and follow them. Your choice of framework and packaging. **Also deploy it:**
-ship a publicly reachable URL (a free host is fine — Vercel, Netlify, Cloudflare Pages,
-GitHub Pages, …) so a reviewer can click through without cloning, and let them **upload
-one or more perf sweeps to render and compare the views live** (we'll test it with a new
-model). See [`Task1_Performance.md`](./Task1_Performance.md#deploying-for-free).
+Pruned LiveCodeBench v5 and AA-LCR benchmarks using IRT discrimination scoring. Reduces 415 total questions to 93 while preserving the exact model ranking (rank correlation = 1.0).
 
-### Task 2 — Benchmark Compression for a Real Customer
-Prune coding (LiveCodeBench), long-context (AA-LCR), and (forward-looking) multimodal
-(MMMU) benchmarks to the smallest sample set that still gives a useful good-or-not
-signal. Your pruner **must live inside [`evalscope`](https://github.com/modelscope/evalscope)**
-as an upstream-quality extension. See [`Task2_Model_Quality.md`](./Task2_Model_Quality.md).
+| Benchmark | Original | Pruned | Reduction |
+|---|---|---|---|
+| LiveCodeBench v5 | 315 | 63 | 80% |
+| AA-LCR | 100 | 30 | 70% |
+| Total | 415 | 93 | 78% |
 
-Run contract:
+### How to Run
+
 ```bash
-evalscope eval --model <model> --datasets live_code_bench --output ./results_full/
-evalscope eval --model <model> --datasets live_code_bench_pruned \
-    --dataset-args '{"pruning_strategy": "your_strategy", "prune_ratio": 0.1}' \
-    --output ./results_pruned/
-python -m evalscope_ext.tools.compare_runs --full ./results_full/ --pruned ./results_pruned/
+git clone https://github.com/kovvurisupraj/evalscope.git
+cd evalscope && python3 -m pip install -e .
+
+# Pruned LiveCodeBench (63 questions instead of 315)
+evalscope eval --model <model_id> --datasets live_code_bench_pruned \
+  --dataset-args '{"prune_ratio": 0.2}'
+
+# Pruned AA-LCR (30 questions instead of 100)
+evalscope eval --model <model_id> --datasets aa_lcr_pruned \
+  --dataset-args '{"prune_ratio": 0.3}'
 ```
 
-Each task's spec defines exactly what to submit (code, written handouts, and/or video).
+### Files in This Repo
 
----
+| File | Description |
+|---|---|
+| `handout_a.md` | Technical write-up covering why this works, pruning results, Part B design, and assumptions |
+| `handout_b.md` | Non-technical write-up covering what this changes for customer conversations and how to use it |
+| `Task2_Cerebras_Benchmark_Compression.pptx` | Presentation slides summarising the full approach |
+| `analyze_evals.py` | Builds score matrices and validates pruning from the review JSONL files |
+| `show_discrimination.py` | Shows discrimination scores per question in rank order |
+| `lcb_kept_indices.npy` | The 63 LCB question indices selected by the pruner |
+| `lcb_score_matrix.npy` | Full 315x3 score matrix (questions x models) |
+| `aa_lcr_kept_indices.npy` | The 30 AA-LCR question indices selected by the pruner |
+| `aa_lcr_score_matrix.npy` | Full 100x3 score matrix |
 
-## How to submit
+### Calibration Models
 
-**Submit via this form:** https://docs.google.com/forms/d/e/1FAIpQLSdwLrRJkKUgTd2sisyJO10VSf1-1vJ3NIywV5HtMlUSc7ijMw/viewform?usp=publish-editor
-
-Your submission **must** include:
-
-1. **A private GitHub repo** with your code.
-   - Keep it **private**, and grant access to the reviewers listed in the form.
-   - Make it runnable from the instructions above — a reviewer will clone and run it.
-   - For Task 2, pin the `evalscope` commit SHA you developed against in your fork's README.
-
-2. **A live URL for the Task 1 UI** — **required**.
-   - A publicly reachable link to your deployed frontend where a reviewer can **upload one
-     or more perf sweeps, compare them, and get the views** (the shipped sweeps may be
-     pre-loaded as a sample).
-   - Put it at the top of your README **and paste it into the submission form above**.
-   - A free host is expected — see
-     [`Task1_Performance.md`](./Task1_Performance.md#deploying-for-free) for options.
-   - The repo stays private; only the deployed UI is public (the perf data is synthetic).
-
-3. **Video walkthrough(s)** explaining your work — **required**.
-   - Task 1: a ≤5-minute video covering the questions in `Task1_Performance.md`
-     (what you cut and why, framework chosen vs ruled out, your assumptions, and your
-     read on the model sizes / profile use-cases).
-   - Task 2: walk through your pruning approach and the trade-offs in your handouts.
-   - Link the video(s) in the form (Loom, Drive, YouTube-unlisted, etc.). Make sure
-     reviewers can actually open the link.
-
-A submission without a private repo, a live Task 1 URL, **and** video(s) is incomplete.
+gpt-oss-120b, kimi-k2.5, minimax-m2.5
