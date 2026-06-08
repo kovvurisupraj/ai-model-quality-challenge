@@ -16,6 +16,8 @@
 
 **Video** https://drive.google.com/file/d/1XI47rxAqJ3mcYPwj9Zn7Rm-tycfwv2h2/view?usp=sharing
 
+**Code** https://github.com/kovvurisupraj/evalscope
+
 **Evalscope commit SHA developed against:** `c14dbaf`
 
 ### What Was Built
